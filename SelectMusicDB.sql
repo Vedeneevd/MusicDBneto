@@ -1,7 +1,6 @@
 SELECT title, duration
-FROM tracks 
-ORDER BY duration DESC 
-LIMIT 1
+FROM tracks
+WHERE duration = (SELECT MAX(duration) FROM tracks);
 
 
 SELECT title
@@ -48,16 +47,18 @@ ORDER BY a.title;
 
 SELECT ar.name AS artist_name
 FROM Artists ar
-LEFT JOIN Albums_Artists aa ON ar.artist_id = aa.artist_id
-LEFT JOIN Albums a ON aa.album_id = a.album_id AND a.release_year = 2020
-WHERE a.album_id IS NULL
+WHERE ar.artist_id NOT IN (
+    SELECT aa.artist_id
+    FROM Albums_Artists aa
+    JOIN Albums a ON aa.album_id = a.album_id
+    WHERE a.release_year = 2020
+)
 ORDER BY ar.name;
 
 
 SELECT DISTINCT c.title AS compilation_title
 FROM Compilations c
-JOIN Albums a ON c.compilation_id = a.album_id 
-JOIN Albums_Artists aa ON a.album_id = aa.album_id
+JOIN Albums_Artists aa ON c.compilation_id = aa.album_id 
 JOIN Artists ar ON aa.artist_id = ar.artist_id
 WHERE ar.name = 'Radiohead'
-ORDER BY c.title;
+ORDER BY c.title; 
